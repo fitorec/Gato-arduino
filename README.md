@@ -11,7 +11,7 @@ Soy un gato! :joy_cat:
 
 ## Este proyecto es un RETO :punch:
 
-la idea es que varios descarguen este código y puedan correrlo en sus tarjetas **Arduino** para que codifiquen su logica de juego y puedan competir con otros. **Al final el mejor(es) programa(s) ganará(n)**.
+La idea es que varios descarguen este código y puedan correrlo en sus tarjetas **Arduino** para que codifiquen su logica de juego y puedan competir con otros. **Al final el mejor(es) programa(s) ganará(n)**.
 
 > A este proyecto le falta realizar pruebas.
 
