@@ -4,15 +4,19 @@
 // Constructor para la clase Gato
 Gato::Gato() {
 	turno = 'x'; // por default.
+	limpiarTablero();
+}
+
+void Gato::iniciarTurnoRandom() {
+	turno = (random(0, 31)%2 == 1)? 'o': 'x';
+	limpiarTablero();
+}
+
+void Gato::limpiarTablero() {
 	for(int i = 0; i<9; i++) {
 		tablero[i] = '-';
 	}
 }
-
-void Gato::iniciarTurnoRandom() {
-	turno = (random(0, 2) == 1)? 'x': 'o';
-}
-
 bool Gato::r_c_val(int r, int c) {
 	if (r<0 || r>2 || c<0 || c>2) {
 		Serial.print("Error: fila_columna("); Serial.print(r);
@@ -47,54 +51,94 @@ bool Gato::tirarYCambiarTurno(int r, int c) {
 	turno = (turno == 'x')? 'o': 'x';
 	return true;
 }
-
-bool Gato::serialRead(int* rc_data) {
-	rc_data[0] = -1; rc_data[0] = -1;
-	if (Serial.available() != 3) {
-		return false;
+/**
+ * Muestre un indice par, un indice en coordenas renglón columnas:
+ **/
+void Gato::mostrarIndiceRC(int* indice_rc) {
+	Serial.print("(");
+	Serial.print(indice_rc[0]);
+	Serial.print(" , ");
+	Serial.print(indice_rc[1]);
+	Serial.print(")\n");
+}
+/**
+ * Lee del puerto Serial la columna y Renglón para tirar.
+ * Revisa que estas coordenadas sean validas.
+ **/
+bool Gato::serialRead(int* indice_rc) {
+	Serial.println("Inserte el valor del Renglón: ");
+	while(Serial.available() == 0) {
 	}
-	rc_data[0] = Serial.parseInt();
-	Serial.read();
-	rc_data[1] = Serial.parseInt();
+	indice_rc[0] = Serial.parseInt();
+	Serial.println("Inserte el valor de la Columna: ");
+	while(Serial.available() == 0) {
+	}
+	indice_rc[1] = Serial.parseInt();
+	Serial.print("Caracteres leidos: ");
+	mostrarIndiceRC(indice_rc);
 	return true;
 }
 
 // Se encarga de mostrar el tablero.
 
 void Gato::mostrarTablero() {
+	Serial.print("\n============ Tablero Actual ==================\nC→");
+	for(int r=0; r<3; r++) {
+		Serial.print(r);
+		Serial.print("  ");
+	}
+	Serial.println("R↓");
 	for(int r=0; r<3; r++) {
 		for(int c=0; c<3; c++) {
 			Serial.print("  ");
 			Serial.print(tablero[3*r + c]);
 		}
-		Serial.print(" <- ");
-		Serial.println(r+1);
+		Serial.print(" ◄ ");
+		Serial.println(r);
 	}
 }
 
-
-bool Gato::disponible(int* rc_data) {
-	rc_data[0] = -1; rc_data[0] = -1;
-	for (int i = 0; i<50; i++) {
+/**
+ * Intenta buscar aleatoriamente una ficha disponible.
+ **/
+bool Gato::disponible(int* indice_rc) {
+	index2RC(indice_rc, -1); // hacemos -1 el renglon y columna
+	// Hacemos 27 iteraciones(aleatorias) lo que serian 3 vueltas.
+	for (int i = 0; i<27; i++) {
 		int index = random(0, 9);
 		if (tablero[index] == '-' ) {
-			index2RC(rc_data, index);
+			index2RC(indice_rc, index);
+			return true;
 		}
 	}
-	for (int i = 0; i<9; i++) {
-		if (tablero[i] == '-' ) {
-			index2RC(rc_data, i);
+	if (random(0, 2) == 1 ) {
+		for (int i = 0; i<9; i++) {
+			if (tablero[i] == '-' ) {
+				index2RC(indice_rc, i);
+				return true;
+			}
+		}
+	} else {
+		for (int i = 8; i>=0; i--) {
+			if (tablero[i] == '-' ) {
+				index2RC(indice_rc, i);
+				return true;
+			}
 		}
 	}
+	return false;
 }
 
-bool Gato::index2RC(int* rc_data, int index) {
-	rc_data[0] = -1; rc_data[0] = -1;
+/**
+ * Convierte un indice de 0-9, a indice par (Renglon, Columna)
+ **/
+bool Gato::index2RC(int* indice_rc, int index) {
+	indice_rc[0] = -1; indice_rc[0] = -1;
 	if (index<0 || index>8) {
 		return false;
 	}
-	rc_data[0] = index/3;
-	rc_data[1] = index%3;
+	indice_rc[0] = index/3;
+	indice_rc[1] = index%3;
 	return true;
 }
 

@@ -1,10 +1,12 @@
 #include <Gato.h>
 // Creamos un objeto con el nombre gato para administrar el juego.
 Gato gato;
-// Arreglo de dos numeros los cuales seran las posiciones
-int tiro[2];
+// Arreglo de dos numeros los cuales seran las posiciones r,c
+int coordenada_rc[2];
 
 void setup() {
+  Serial.begin(9600);
+  Serial.println("Inicio del Juego");
   gato.iniciarTurnoRandom();    // Iniciamos de forma aleatoria
 }
 
@@ -18,11 +20,21 @@ void loop() {
    }
    if (gato.turno == 'x') {
      Serial.println("Le toca al Arduino");
-     gato.disponible(tiro);     // Obtenemos un disponible random
+     // Mostramos la ficha seleccionada por la tarjeta Arduino
+     tirar(coordenada_rc);
+     Serial.print("El arduino Selecciono: ");
+     tirar(coordenada_rc);
      delay(random(1, 4) * 500); // Nos esperamos un rato de forma aleatoria
    } else {
     Serial.println("Le toca al Humano");
-     gato.serialRead(tiro);     // Leemos los datos del usuario desde el puerto Serial (r,c).
+     gato.serialRead(coordenada_rc);     // Leemos los datos del usuario desde el puerto Serial (r,c).
+     
    }
-   gato.tirarYCambiarTurno(tiro[0], tiro[1]);
+   gato.tirarYCambiarTurno(coordenada_rc[0], coordenada_rc[1]);
+   delay(random(1, 4) * 500); // Nos esperamos un rato de forma aleatoria
+}
+
+bool tirar(int* indice_rc) {
+    // Aqui implementar tú logica de juego.
+    gato.disponible(indice_rc);     // Obtenemos un disponible random
 }

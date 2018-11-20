@@ -11,24 +11,26 @@
 class Gato {
 	public:
 		Gato();
+		void limpiarTablero();
+		void iniciarTurnoRandom();
 		// Acceso por Renglon y Columna
 		bool r_c_val(int r, int c);
 		char r_c(int r, int c);
 		bool tirar(int r, int c);
-		bool serialRead(int* rc_data);
+		bool serialRead(int* indice_rc);
 		void mostrarTablero();
+		void mostrarIndiceRC(int* indice_rc);
 		bool tirarYCambiarTurno(int r, int c);
 		// Acceso por Index
 		bool valid(int index);
 		char value(int index);
 		bool set(int index, char c);
-		bool disponible(int* rc_data);
+		bool disponible(int* indice_rc);
 		char fin();
 		// Administracion del turno
 		char turno;
-		void iniciarTurnoRandom();
+		bool index2RC(int* indice_rc, int index);
 	private:
-		bool index2RC(int* rc_data, int index);
 		char tablero[9];
 };
 #endif
