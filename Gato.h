@@ -21,6 +21,7 @@ class Gato {
 		void mostrarTablero();
 		void mostrarIndiceRC(int* indice_rc);
 		bool tirarYCambiarTurno(int r, int c);
+		int fichasDisponibles();
 		// Acceso por Index
 		bool valid(int index);
 		char value(int index);

@@ -103,28 +103,17 @@ void Gato::mostrarTablero() {
  **/
 bool Gato::disponible(int* indice_rc) {
 	index2RC(indice_rc, -1); // hacemos -1 el renglon y columna
-	// Hacemos 27 iteraciones(aleatorias) lo que serian 3 vueltas.
-	for (int i = 0; i<27; i++) {
-		int index = random(0, 9);
-		if (tablero[index] == '-' ) {
-			index2RC(indice_rc, index);
-			return true;
+	int num_disponibles = 0;
+	int disponibles[9];
+	for (int i = 0; i<9; i++) {
+		if (tablero[i] == '-' ) {
+			disponibles[(num_disponibles++)] = i;
 		}
 	}
-	if (random(0, 2) == 1 ) {
-		for (int i = 0; i<9; i++) {
-			if (tablero[i] == '-' ) {
-				index2RC(indice_rc, i);
-				return true;
-			}
-		}
-	} else {
-		for (int i = 8; i>=0; i--) {
-			if (tablero[i] == '-' ) {
-				index2RC(indice_rc, i);
-				return true;
-			}
-		}
+	if (num_disponibles > 0) {
+		int randomIndex = random(0, num_disponibles);
+		index2RC(indice_rc, disponibles[randomIndex]);
+		return true;
 	}
 	return false;
 }
@@ -142,46 +131,56 @@ bool Gato::index2RC(int* indice_rc, int index) {
 	return true;
 }
 
+/**
+ * Regresa un caracter para indicar si la partida a concluido:
+ *  x: Gano el jugador x
+ *  o: Gano el jugador o
+ *  e: No hay fichas disponibles, el juego concluyó en empate.
+ */
 char Gato::fin() {
 	int r, c;
+	char ch;
 	// Revisando los renglones
-	for (r = 0; r<3; r++) {
-		char anterior = r_c(r, 0);
-		for(c = 1; c<3; c++) {
-			char actual = r_c(r, c);
-			if (actual == '-' || actual != anterior) {
-				break;
-			}
-			anterior = actual;
+	for (int i = 0; i<3; i++) {
+		ch = r_c(i, 0);
+		// Revisar el renglon
+		if (ch == r_c(i, 1) && ch == r_c(i, 2) && ch != '-') {
+			return ch;
 		}
-		if ( c == 3) {
-			return anterior;
-		}
-	}
-	for (c = 0; c<3; c++) {
-		char anterior = r_c(0, c);
-		for(r = 1; r<3; r++) {
-			char actual = r_c(r, c);
-			if (actual == '-' || actual != anterior) {
-				break;
-			}
-			anterior = actual;
-		}
-		if ( c == 3) {
-			return anterior;
+		// Revisando la columna
+		ch = r_c(0, i);
+		if (ch == r_c(1, i) && ch == r_c(2, i) && ch != '-') {
+			return ch;
 		}
 	}
 	// Revisa las diagonales
-	char centro = r_c(1, 1);
-	if (r_c(0, 0) == centro && r_c(2, 2) == centro) {
-		return centro;
+	ch = r_c(1, 1); // el elemento del centro.
+	if (ch != '-') {
+		if (r_c(0, 0) == ch && r_c(2, 2) == ch) {
+			return ch;
+		}
+		if (r_c(0, 2) == ch && r_c(2, 0) == ch) {
+			return ch;
+		}
 	}
-	if (r_c(0, 2) == centro && r_c(2, 0) == centro) {
-		return centro;
+	// Revisar si hay fichas disponibles
+	for (int i = 0; i<9; i++) {
+		if (tablero[i] == '-' ) {
+			return '-'; // Hay disponibles.
+		}
 	}
-	return '-';
+	return 'e';
 }
 
+int Gato::fichasDisponibles() {
+	int num_disponibles = 0;
+	for (int i = 0; i<9; i++) {
+		if (tablero[i] == '-' ) {
+			num_disponibles++;
+		}
+	}
+	return num_disponibles;
+}
 
 // Funciones de indice
 bool Gato::valid(int index) {

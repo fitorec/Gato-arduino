@@ -1,7 +1,7 @@
 /*                            Ejemplo 2: Arduino VS Arduino en una Tarjeta
   |\      _,,,,--,,_                    Se recomienda redefinir las funciones:
   /,`.-'`'    -,  \-;,                  - tirarX
- |,4-  ) ),,__ ,\ (  ;;                 - tirarY
+ |,4-  ) ),,__ ,\ (  ;;                 - tirarO
 '---''(.'--'  `-'`.)*/
 
 #include <Gato.h>
@@ -9,6 +9,7 @@
 Gato gato;
 // Arreglo de dos numeros los cuales seran las posiciones r,c
 int coordenada_rc[2];
+int ganadas_x = 0, ganadas_o = 0;
 
 void setup() {
   Serial.begin(9600);
@@ -19,9 +20,19 @@ void setup() {
 void loop() {
   gato.mostrarTablero();        // Mostramos el tablero
    if (gato.fin() != '-' ) {
-      Serial.println("El juego a concluido, El ganador fue: ");
+      Serial.print("El juego a concluido, El ganador fue: ");
       Serial.println(gato.fin());
-      delay(30000);             // esperamos 30 segundos.
+      if (gato.fin() == 'x') {
+        ganadas_x++;
+      } else if(gato.fin() == 'o') {
+        ganadas_o++;
+      }
+      Serial.print("Marcador Actual x = ");
+      Serial.print(ganadas_x);
+      Serial.print(", o = ");
+      Serial.println(ganadas_o);
+      delay(5000);             // esperamos 5 segundos.
+      gato.iniciarTurnoRandom();
       return;
    }
    Serial.print("Le toca al Arduino: ");
@@ -29,12 +40,12 @@ void loop() {
    if (gato.turno == 'x') {
       tirarX(coordenada_rc);
    } else {
-      tirarY(coordenada_rc);
+      tirarO(coordenada_rc);
    }
    Serial.print("El arduino Selecciono: ");
    gato.mostrarIndiceRC(coordenada_rc);
    gato.tirarYCambiarTurno(coordenada_rc[0], coordenada_rc[1]);
-   delay(random(1, 4) * 700); // Nos esperamos un rato de forma aleatoria
+   delay(random(3, 5) * 300); // Nos esperamos un rato de forma aleatoria
 }
 
 bool tirarX(int* indice_rc) {
@@ -50,6 +61,6 @@ bool tirarX(int* indice_rc) {
   }
   return false;
 }
-bool tirarY(int* indice_rc) {
+bool tirarO(int* indice_rc) {
     return gato.disponible(indice_rc);     // Obtenemos un disponible random
 }
