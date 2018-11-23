@@ -23,7 +23,7 @@ void loop() {
      // Mostramos la ficha seleccionada por la tarjeta Arduino
      tirar(coordenada_rc);
      Serial.print("El arduino Selecciono: ");
-     tirar(coordenada_rc);
+     gato.mostrarIndiceRC(coordenada_rc);
      delay(random(1, 4) * 500); // Nos esperamos un rato de forma aleatoria
    } else {
     Serial.println("Le toca al Humano");

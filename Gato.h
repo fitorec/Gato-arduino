@@ -14,7 +14,7 @@ class Gato {
 		void limpiarTablero();
 		void iniciarTurnoRandom();
 		// Acceso por Renglon y Columna
-		bool r_c_val(int r, int c);
+		bool r_c_val(int r, int c); // revisar
 		char r_c(int r, int c);
 		bool tirar(int r, int c);
 		bool serialRead(int* indice_rc);
@@ -27,7 +27,10 @@ class Gato {
 		char value(int index);
 		bool set(int index, char c);
 		bool disponible(int* indice_rc);
-		char fin();
+		char fin(); 
+		// Fin devuelve
+		// - Si no ha terminado el juego.
+		// x Si el gaó 
 		// Administracion del turno
 		char turno;
 		bool index2RC(int* indice_rc, int index);

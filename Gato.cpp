@@ -17,6 +17,7 @@ void Gato::limpiarTablero() {
 		tablero[i] = '-';
 	}
 }
+
 bool Gato::r_c_val(int r, int c) {
 	if (r<0 || r>2 || c<0 || c>2) {
 		Serial.print("Error: fila_columna("); Serial.print(r);
