@@ -1,8 +1,12 @@
-/*
-  |\      _,,,,--,,_
-  /,`.-'`'    -,  \-;,     Ejemplo 3: Maestro que controla la partida y a los clientes
- |,4-  ) ),,__ ,\ (  ;;
-'---''(.'--'  `-'`.)*/
+/*  Ejemplo 3: "Master" - Juego del Cato en 3 Arduinos en I2C
+   |\_._/|         |,\__/|           |\_._/|
+   | o o |MASTER   |  o o|CLIENTE O  | O O | CLIENTE X
+   (  Y  )         (   T )   dir9    (  T  )    dir8
+  .^`-^-'^.       .^`--^'^.         .^`-^-'^.
+   ___  \_         ___  \_          ___  \_
+  [(_)] |=|-------[(_)] |=|--------[(_)] |=|
+   '-`  |_| I2C    '-`  |_| I2C     '-`  |_|
+  /mmm/           /mmm/            /mm*/
 
 #include <Gato.h>
 #include <Wire.h>
@@ -11,8 +15,8 @@
 Gato gato;
 // Arreglo de dos numeros los cuales seran las posiciones r,c
 int coordenada_rc[2];
-int ganadas_x = 0, ganadas_o = 0;
 int limite_partidas = 5;
+int partidas_empatadas = 0;
 
 typedef struct {
   int address;
@@ -27,7 +31,7 @@ void setup() {
   Serial.begin(9600);
   Wire.begin();         // Iniciamos i2c como master
   delay(100);
-  // Cambiamos la config. por defecto si generamos un número impar random.
+  // Cambiamos la direccion por defecto, de manera aleatoria.
   if (random(0, 31) % 2 == 1) {
     clients[0].address = 9;
     clients[1].address = 8;
@@ -39,7 +43,7 @@ void setup() {
     Wire.endTransmission();                     // Detenemos la trasmisión
     Serial.print("El jugador '");
     Serial.print(clients[i].ficha);
-    Serial.print("' , tiene la dirección: ");
+    Serial.print("' , se le asigno la dirección: ");
     Serial.println(clients[i].address);
   }
   gato.iniciarTurnoRandom();
@@ -47,18 +51,20 @@ void setup() {
 
 
 void loop() {
-  if (limite_partidas <= clients[0].ganadas || limite_partidas <= clients[1].ganadas ) {
-    delay(5000);             // esperamos 5 segundos.
-      return;
+  if (limite_partidas <= clients[0].ganadas ||
+      limite_partidas <= clients[1].ganadas ||
+      limite_partidas <= partidas_empatadas ) {
+    delay(5000);             // esperamos 5 seundos.
+    return;
   }
   char fin = gato.fin();
   if (fin != '-') {
-	  incrementarGanadas(fin);
-      mostrarMarcador(fin);
-      notificarResultadoALosClientes(fin);
-      delay(3000);             // esperamos 3 segundos.
-      gato.iniciarTurnoRandom();
-      return;
+    incrementarGanadas(fin);
+    mostrarMarcador(fin);
+    notificarResultadoALosClientes(fin);
+    delay(3000);             // esperamos 3 segundos.
+    gato.iniciarTurnoRandom();
+    return;
   }
   pedirTiroAlClienteActual(coordenada_rc);
   Serial.print("El arduino '");
@@ -77,22 +83,27 @@ void loop() {
 
 
 char addressFichaActual(char ficha) {
-  if(clients[0].ficha == ficha) {
+  if (ficha == 'x') {
     return clients[0].address;
   }
   return clients[1].address;
 }
-char addressFichaSiguiente(char ficha) {
-  return addressFichaActual(ficha == 'x'? 'o' : 'x');
+
+char addressFichaSiguiente(char fichaActual) {
+  return addressFichaActual((fichaActual == 'x')? 'o' : 'x');
 }
 
 void mostrarMarcador(char fin) {
-  Serial.print("El juego a concluido, El ganador fue: ");
-    Serial.println(fin);
-    Serial.print("Marcador Actual x = ");
-    Serial.print(ganadas_x);
-    Serial.print(", o = ");
-    Serial.println(ganadas_o);
+  Serial.print("Juego a concluido, El ganador fue: ");
+  Serial.println(fin);
+  Serial.print("Marcador Actual ");
+  for(int i = 0; i<2; i++) {
+    Serial.print(clients[i].ficha);
+    Serial.print(" = ");
+    Serial.print(clients[i].ganadas);
+  }
+  Serial.print(", empatados: ");
+  Serial.println(partidas_empatadas);
 }
 
 void pedirTiroAlClienteActual(int* indice_rc) {
@@ -118,14 +129,17 @@ void notificarResultadoALosClientes(char fin) {
     Wire.endTransmission();                     // Detenemos la trasmisión
   }
 }
+
 void incrementarGanadas(char fin) {
-	if (fin == 'e') {                           // caso de empate.
-		return;
-	}
-   for(int i = 0; i<2; i++) {
-	   if (clients[i].ficha == fin) {
-		 clients[i].ganadas++;
-		 return;
-	   }
-   }
+  switch (fin) {
+    case 'x':
+      clients[0].ganadas++;
+      break;
+    case 'o':
+      clients[1].ganadas++;
+      break;
+    case 'e':
+      partidas_empatadas++;
+      break;
+  }
 }
