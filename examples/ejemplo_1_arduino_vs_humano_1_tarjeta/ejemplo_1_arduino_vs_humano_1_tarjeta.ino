@@ -7,6 +7,7 @@ int coordenada_rc[2];
 void setup() {
   Serial.begin(9600);
   Serial.println("Inicio del Juego");
+  randomSeed(analogRead(A0));
   gato.iniciarTurnoRandom();    // Iniciamos de forma aleatoria
 }
 

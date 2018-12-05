@@ -30,20 +30,28 @@ cliente clients[2] = {{8, 'x', 0}, {9, 'o', 0}};
 void setup() {
   Serial.begin(9600);
   Wire.begin();         // Iniciamos i2c como master
-  delay(100);
   // Cambiamos la direccion por defecto, de manera aleatoria.
+  randomSeed(analogRead(A0));
   if (random(0, 31) % 2 == 1) {
     clients[0].address = 9;
     clients[1].address = 8;
   }
+  Serial.println("El servidor esta iniciando...");
+  for(int i = 0; i<5; i++) {
+    Serial.print("Esperando: ");
+    Serial.print(i+1);
+    Serial.println(" Segundos");
+    delay(1000);
+  }
   // Les notificamos cual es la ficha que le toca a cada cliente
   for(int i = 0; i<2; i++) {
+    delay(1000);
     Wire.beginTransmission(clients[i].address); // Iniciamos trasmisión a la direccion
-    Wire.write(clients[i].ficha);               // Le enviamos el codigo de la ficha
+    Wire.write('x');               // Le enviamos el codigo de la ficha - clients[i].ficha
     Wire.endTransmission();                     // Detenemos la trasmisión
     Serial.print("El jugador '");
     Serial.print(clients[i].ficha);
-    Serial.print("' , se le asigno la dirección: ");
+    Serial.print("' , se le asigno la direccion: ");
     Serial.println(clients[i].address);
   }
   gato.iniciarTurnoRandom();
@@ -108,6 +116,11 @@ void mostrarMarcador(char fin) {
 
 void pedirTiroAlClienteActual(int* indice_rc) {
   int dirActual = addressFichaActual(gato.turno);
+  Serial.print("Esperando respuesta del arduino ");
+  Serial.print(gato.turno);
+  Serial.print(" (direccion: ");
+  Serial.print(dirActual);
+  Serial.println(")");
   Wire.requestFrom(dirActual, 2);    // Solicitamos dos bytes al jugador actual
   while (!Wire.available()) {}       // Esperamos...
   indice_rc[0] = Wire.read();

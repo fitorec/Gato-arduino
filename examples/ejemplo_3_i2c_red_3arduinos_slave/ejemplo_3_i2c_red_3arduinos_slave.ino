@@ -19,6 +19,7 @@ void setup() {
   Wire.begin(address);          // Iniciamos i2c como esclavo.
   Wire.onRequest(enviarTiro);       // Registramos las solicitudas
   Wire.onReceive(recibirDelMaster); // Registramos las recepciones
+  randomSeed(analogRead(A0));
   gato.iniciarTurnoRandom();
 }
 
